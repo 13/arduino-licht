@@ -3,7 +3,7 @@
 
 // #define VERBOSE
 
-#define SLPTIME 24 // seconds
+#define SLPTIME
 
 #if defined(__AVR_ATtiny85__)
 #define ledPin1 0
@@ -22,6 +22,10 @@ volatile bool motionDetected = false;
 
 void blinkLED(int numBlinks)
 {
+#ifdef VERBOSE
+  Serial.print(F("> LED: BLINK "));
+  Serial.println(numBlinks);
+#endif
   for (int i = 0; i < numBlinks; ++i)
   {
     digitalWrite(ledPin1, HIGH);
@@ -30,6 +34,17 @@ void blinkLED(int numBlinks)
     delay(200);
   }
   delay(500);
+}
+
+void turnOnLED(int seconds)
+{
+#ifdef VERBOSE
+  Serial.print(F("> LED: ON "));
+  Serial.println(seconds);
+#endif
+  digitalWrite(ledPin1, HIGH);
+  delay(seconds * 1000);
+  digitalWrite(ledPin1, LOW);
 }
 
 #ifdef SLPTIME
@@ -86,13 +101,15 @@ void loop()
 #endif
   if (ldrValue < ldrThreshold && pirValue == HIGH) // motionDetected
   {
-    digitalWrite(ledPin1, HIGH);
+    // digitalWrite(ledPin1, HIGH);
+    blinkLED(2);
+    turnOnLED(10);
   }
   else
   {
     digitalWrite(ledPin1, LOW);
 #ifdef SLPTIME
-    motionDetected = true;
+    motionDetected = false;
     sleepDeep();
 #endif
   }
