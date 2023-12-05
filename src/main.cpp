@@ -1,8 +1,6 @@
 #include <Arduino.h>
 #include <LowPower.h>
 
-// #define VERBOSE
-
 #define SLPTIME
 
 #if defined(__AVR_ATtiny85__)
@@ -10,6 +8,7 @@
 #define ldrPin1 A2
 #define pirPin 1 // INTERRUPT: PB1 / EXT. INTERRUPT: PB2
 #else
+#define VERBOSE
 #define ledPin1 10
 #define ldrPin1 A0
 #define pirPin 2 // 2 or 3
