@@ -8,15 +8,17 @@
 #if defined(__AVR_ATtiny85__)
 #define ledPin1 0
 #define ldrPin1 A2
-#define pirPin 2
+#define pirPin 1 // INTERRUPT: PB1 / EXT. INTERRUPT: PB2
 #else
 #define ledPin1 10
 #define ldrPin1 A0
-#define pirPin 2
+#define pirPin 2 // 2 or 3
 #endif
 
 int ldrThreshold = 100;
 int ldrValue = 0;
+int pirValue = 0;
+volatile bool motionDetected = false;
 
 void blinkLED(int numBlinks)
 {
@@ -42,24 +44,17 @@ void sleepDeep()
 }
 #endif
 
-void motionDetected()
+void wakeUp()
 {
-  ldrValue = analogRead(ldrPin1);
+  motionDetected = true;
 #ifdef VERBOSE
-  Serial.print(F("> LDR: "));
-  Serial.println(ldrValue);
+  pirValue = digitalRead(pirPin);
+  Serial.println(F("> WakeUp... "));
+  Serial.print(F("> PIR: "));
+  Serial.println(pirValue);
+  Serial.print(F("> MOTION: "));
+  Serial.println(motionDetected);
 #endif
-  if (ldrValue < ldrThreshold)
-  {
-    digitalWrite(ledPin1, HIGH);
-  }
-  else
-  {
-    digitalWrite(ledPin1, LOW);
-#ifdef SLPTIME
-    sleepDeep();
-#endif
-  }
 }
 
 void setup()
@@ -72,19 +67,24 @@ void setup()
 #endif
   blinkLED(3);
   pinMode(ldrPin1, INPUT);
-  pinMode(pirPin, INPUT_PULLUP); // Set PIR pin as input with internal pull-up resistor
+  pinMode(pirPin, INPUT_PULLUP);
 
-  attachInterrupt(digitalPinToInterrupt(pirPin), motionDetected, RISING);
+  attachInterrupt(digitalPinToInterrupt(pirPin), wakeUp, RISING);
 }
 
 void loop()
 {
   ldrValue = analogRead(ldrPin1);
+  pirValue = digitalRead(pirPin);
 #ifdef VERBOSE
   Serial.print(F("> LDR: "));
   Serial.println(ldrValue);
+  Serial.print(F("> PIR: "));
+  Serial.println(pirValue);
+  Serial.print(F("> MOTION: "));
+  Serial.println(motionDetected);
 #endif
-  if (ldrValue < ldrThreshold)
+  if (ldrValue < ldrThreshold && pirValue == HIGH) // motionDetected
   {
     digitalWrite(ledPin1, HIGH);
   }
@@ -92,6 +92,7 @@ void loop()
   {
     digitalWrite(ledPin1, LOW);
 #ifdef SLPTIME
+    motionDetected = true;
     sleepDeep();
 #endif
   }
