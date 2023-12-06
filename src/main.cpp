@@ -1,7 +1,7 @@
 #include <Arduino.h>
 #include <LowPower.h>
 
-#define LEDON 25
+#define LEDON 20
 
 #define SLPTIME
 
@@ -45,11 +45,15 @@ void turnOnLED(int seconds)
 {
 #ifdef VERBOSE
   Serial.print(F("> LED: ON "));
-  Serial.println(seconds);
+  Serial.print(seconds);
+  Serial.println(F("s"));
 #endif
   digitalWrite(ledPin1, HIGH);
   delay(seconds * 1000);
   digitalWrite(ledPin1, LOW);
+#ifdef VERBOSE
+  Serial.println(F("> LED: OFF"));
+#endif
 }
 
 #ifdef SLPTIME
