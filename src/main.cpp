@@ -1,14 +1,20 @@
 #include <Arduino.h>
 #include <LowPower.h>
 
+#define LEDON 25
+
 #define SLPTIME
 
 #if defined(__AVR_ATtiny85__)
 #define ledPin1 0
-#define ldrPin1 A2
+#define ldrPin1 A1
 #define pirPin 1 // INTERRUPT: PB1 / EXT. INTERRUPT: PB2
 #else
 #define VERBOSE
+#ifdef LEDON
+#undef LEDON
+#define LEDON 10
+#endif
 #define ledPin1 10
 #define ldrPin1 A0
 #define pirPin 2 // 2 or 3
@@ -100,9 +106,7 @@ void loop()
 #endif
   if (ldrValue < ldrThreshold && pirValue == HIGH) // motionDetected
   {
-    // digitalWrite(ledPin1, HIGH);
-    blinkLED(2);
-    turnOnLED(10);
+    turnOnLED(LEDON);
   }
   else
   {
